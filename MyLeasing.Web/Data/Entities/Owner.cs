@@ -4,7 +4,7 @@ namespace MyLeasing.Web.Data.Entities
 {
     public class Owner
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         public User User { get; set; }
 
