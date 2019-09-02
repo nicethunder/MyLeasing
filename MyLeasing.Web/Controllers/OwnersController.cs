@@ -16,21 +16,27 @@ namespace MyLeasing.Web.Controllers
     [Authorize (Roles = "Manager")]
     public class OwnersController : Controller
     {
-        private readonly DataContext _datacontext;
+        private readonly DataContext _dataContext;
         private readonly IUserHelper _userHelper;
+        private readonly ICombosHelper _combosHelper;
+        private readonly IConverteHelper _converteHelper;
 
         public OwnersController(
             DataContext datacontext,
-            IUserHelper userHelper)
+            IUserHelper userHelper,
+            ICombosHelper combosHelper,
+            IConverteHelper converteHelper)
         {
-            _datacontext = datacontext;
+            _dataContext = datacontext;
             _userHelper = userHelper;
+            _combosHelper = combosHelper;
+            _converteHelper = converteHelper;
         }
 
         // GET: Owners
         public IActionResult Index()
         {
-            return View(_datacontext.Owners
+            return View(_dataContext.Owners
                 .Include(o => o.User)
                 .Include(o => o.Properties)
                 .Include(o => o.Contracts));
@@ -44,7 +50,7 @@ namespace MyLeasing.Web.Controllers
                 return NotFound();
             }
 
-            var owner = await _datacontext.Owners
+            var owner = await _dataContext.Owners
                 .Include(o => o.User)
                 .Include(o => o.Properties)
                 .ThenInclude(p => p.PropertyImages)
@@ -82,8 +88,8 @@ namespace MyLeasing.Web.Controllers
 
                     };
 
-                    _datacontext.Owners.Add(owner);
-                    await _datacontext.SaveChangesAsync();
+                    _dataContext.Owners.Add(owner);
+                    await _dataContext.SaveChangesAsync();
                     return RedirectToAction("Index");
                 }
 
@@ -125,7 +131,7 @@ namespace MyLeasing.Web.Controllers
                 return NotFound();
             }
 
-            var owner = await _datacontext.Owners.FindAsync(id);
+            var owner = await _dataContext.Owners.FindAsync(id);
             if (owner == null)
             {
                 return NotFound();
@@ -149,8 +155,8 @@ namespace MyLeasing.Web.Controllers
             {
                 try
                 {
-                    _datacontext.Update(owner);
-                    await _datacontext.SaveChangesAsync();
+                    _dataContext.Update(owner);
+                    await _dataContext.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -176,7 +182,7 @@ namespace MyLeasing.Web.Controllers
                 return NotFound();
             }
 
-            var owner = await _datacontext.Owners
+            var owner = await _dataContext.Owners
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (owner == null)
             {
@@ -191,15 +197,53 @@ namespace MyLeasing.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var owner = await _datacontext.Owners.FindAsync(id);
-            _datacontext.Owners.Remove(owner);
-            await _datacontext.SaveChangesAsync();
+            var owner = await _dataContext.Owners.FindAsync(id);
+            _dataContext.Owners.Remove(owner);
+            await _dataContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool OwnerExists(int id)
         {
-            return _datacontext.Owners.Any(e => e.Id == id);
+            return _dataContext.Owners.Any(e => e.Id == id);
         }
+
+        public async Task<IActionResult> AddProperty(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var owner = await _dataContext.Owners.FindAsync(id.Value);
+            if (owner == null)
+            {
+                return NotFound();
+            }
+
+            var model = new PropertyViewModel
+            {
+                OwnerId = owner.Id,
+                PropertyTypes = _combosHelper.GetComboPropertyTypes()
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddProperty(PropertyViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var property = await _converteHelper.ToPropertyAsync(model, true);
+                _dataContext.Properties.Add(property);
+                await _dataContext.SaveChangesAsync();
+                return RedirectToAction($"Details/{model.OwnerId}");
+            }
+
+            return View(model);
+        }
+
+
     }
 }
