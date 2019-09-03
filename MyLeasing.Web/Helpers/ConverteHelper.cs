@@ -10,17 +10,33 @@ namespace MyLeasing.Web.Helpers
 {
     public class ConverteHelper : IConverteHelper
     {
-        private readonly DataContext _dataContex;
+        private readonly DataContext _dataContext;
         private readonly ICombosHelper _combosHelper;
 
         public ConverteHelper(
             DataContext dataContex,
             ICombosHelper combosHelper)
         {
-            _dataContex = dataContex;
+            _dataContext = dataContex;
             _combosHelper = combosHelper;
         }
 
+        public async Task<Contract> ToContractAsync(ContractViewModel model, bool isNew)
+        {
+            return new Contract
+            {
+                EndDate = model.EndDate.ToUniversalTime(),
+                Id = isNew ? 0 : model.Id,
+                IsActive = model.IsActive,
+                Lessee = await _dataContext.Lessees.FindAsync(model.LesseeId),
+                Owner = await _dataContext.Owners.FindAsync(model.OwnerId),
+                Price = model.Price,
+                Property = await _dataContext.Properties.FindAsync(model.PropertyId),
+                Remarks = model.Remarks,
+                StartDate = model.StartDate.ToUniversalTime()
+
+            };
+        }
         public async Task<Property> ToPropertyAsync(PropertyViewModel model, bool isNew)
         {
             return new Property
@@ -31,10 +47,10 @@ namespace MyLeasing.Web.Helpers
                 Id = isNew ? 0 : model.Id,
                 IsAvailable = model.IsAvailable,
                 Neighborhood = model.Neighborhood,
-                Owner = await _dataContex.Owners.FindAsync(model.OwnerId),
+                Owner = await _dataContext.Owners.FindAsync(model.OwnerId),
                 Price = model.Price,
                 PropertyImages = isNew ? new List<PropertyImage>() : model.PropertyImages,
-                PropertyType = await _dataContex.PropertyTypes.FindAsync(model.PropertyTypeId),
+                PropertyType = await _dataContext.PropertyTypes.FindAsync(model.PropertyTypeId),
                 Remarks = model.Remarks,
                 Rooms = model.Rooms,
                 SquareMeters = model.SquareMeters,
