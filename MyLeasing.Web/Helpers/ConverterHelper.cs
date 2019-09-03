@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace MyLeasing.Web.Helpers
 {
-    public class ConverteHelper : IConverteHelper
+    public class ConverterHelper : IConverterHelper
     {
         private readonly DataContext _dataContext;
         private readonly ICombosHelper _combosHelper;
 
-        public ConverteHelper(
+        public ConverterHelper(
             DataContext dataContex,
             ICombosHelper combosHelper)
         {
@@ -37,6 +37,27 @@ namespace MyLeasing.Web.Helpers
 
             };
         }
+
+        public ContractViewModel ToContractViewModel(Contract contract)
+        {
+            return new ContractViewModel
+            {
+                EndDate = contract.EndDate,
+                Id = contract.Id,
+                IsActive = contract.IsActive,
+                Lessee = contract.Lessee,
+                Owner = contract.Owner,
+                Price = contract.Price,
+                Property = contract.Property,
+                Remarks = contract.Remarks,
+                StartDate = contract.StartDate,
+                LesseeId = contract.Lessee.Id,
+                Lessees = _combosHelper.GetComboLessees(),
+                OwnerId = contract.Id,
+                PropertyId = contract.Id
+            };
+        }
+
         public async Task<Property> ToPropertyAsync(PropertyViewModel model, bool isNew)
         {
             return new Property

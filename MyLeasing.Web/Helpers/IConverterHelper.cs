@@ -4,11 +4,11 @@ using MyLeasing.Web.Models;
 
 namespace MyLeasing.Web.Helpers
 {
-    public interface IConverteHelper
+    public interface IConverterHelper
     {
         Task<Property> ToPropertyAsync(PropertyViewModel model, bool isNew);
-
         PropertyViewModel ToPropertyViewModel(Property property);
         Task<Contract> ToContractAsync(ContractViewModel model, bool isNew);
+        ContractViewModel ToContractViewModel(Contract contract);
     }
 }

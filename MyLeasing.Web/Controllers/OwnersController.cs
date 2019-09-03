@@ -19,20 +19,20 @@ namespace MyLeasing.Web.Controllers
         private readonly DataContext _dataContext;
         private readonly IUserHelper _userHelper;
         private readonly ICombosHelper _combosHelper;
-        private readonly IConverteHelper _converteHelper;
+        private readonly IConverterHelper _converterHelper;
         private readonly IImageHelper _imageHelper;
 
         public OwnersController(
             DataContext datacontext,
             IUserHelper userHelper,
             ICombosHelper combosHelper,
-            IConverteHelper converteHelper,
+            IConverterHelper converterHelper,
             IImageHelper imageHelper)
         {
             _dataContext = datacontext;
             _userHelper = userHelper;
             _combosHelper = combosHelper;
-            _converteHelper = converteHelper;
+            _converterHelper = converterHelper;
             _imageHelper = imageHelper;
         }
 
@@ -238,7 +238,7 @@ namespace MyLeasing.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var property = await _converteHelper.ToPropertyAsync(model, true);
+                var property = await _converterHelper.ToPropertyAsync(model, true);
                 _dataContext.Properties.Add(property);
                 await _dataContext.SaveChangesAsync();
                 return RedirectToAction($"Details/{model.OwnerId}");
@@ -263,7 +263,7 @@ namespace MyLeasing.Web.Controllers
                 return NotFound();
             }
 
-            var model = _converteHelper.ToPropertyViewModel(property);
+            var model = _converterHelper.ToPropertyViewModel(property);
             return View(model);
         }
 
@@ -273,7 +273,7 @@ namespace MyLeasing.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var property = await _converteHelper.ToPropertyAsync(model, false);
+                var property = await _converterHelper.ToPropertyAsync(model, false);
                 _dataContext.Properties.Update(property);
                 await _dataContext.SaveChangesAsync();
                 return RedirectToAction($"Details/{model.OwnerId}");
@@ -386,7 +386,7 @@ namespace MyLeasing.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var contract = await _converteHelper.ToContractAsync(model,true);
+                var contract = await _converterHelper.ToContractAsync(model,true);
                 _dataContext.Contracts.Add(contract);
                 await _dataContext.SaveChangesAsync();
                 return RedirectToAction($"{nameof(DetailsProperty)}/{model.PropertyId}");
@@ -394,6 +394,42 @@ namespace MyLeasing.Web.Controllers
 
             return View(model);
         }
+
+        public async Task<IActionResult> EditContract(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var contract = await _dataContext.Contracts
+                .Include(p => p.Owner)
+                .Include(p => p.Lessee)
+                .Include(p => p.Property)
+                .FirstOrDefaultAsync(p => p.Id == id.Value);
+            if (contract == null)
+            {
+                return NotFound();
+            }
+
+            return View(_converterHelper.ToContractViewModel(contract));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditContract(ContractViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var contract = await _converterHelper.ToContractAsync(model, false);
+                _dataContext.Contracts.Update(contract);
+                await _dataContext.SaveChangesAsync();
+                return RedirectToAction($"{nameof(DetailsProperty)}/{model.PropertyId}");
+            }
+
+            return View(model);
+        }
+
+
 
 
 
