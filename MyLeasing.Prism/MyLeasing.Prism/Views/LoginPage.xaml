@@ -26,7 +26,7 @@
             VerticalOptions="CenterAndExpand"/>
         <Button
             Command="{Binding LoginCommand}"
-            IsEnabled="{Binding IsEnable}"
+            IsEnabled="{Binding IsEnabled}"
             Text="Login"/>
 
     </StackLayout>
