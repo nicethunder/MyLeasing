@@ -11,6 +11,7 @@ namespace MyLeasing.Prism.ViewModels
 {
     public class LoginPageViewModel : ViewModelBase
     {
+        private readonly INavigationService _navigationService;
         private readonly IApiService _apiService;
         private string _password;
         private bool _isRunning;
@@ -23,6 +24,7 @@ namespace MyLeasing.Prism.ViewModels
         {
             Title = "Login";
             IsEnabled = true;
+            _navigationService = navigationService;
             _apiService = apiService;
 
             //TODO: delete this lines
@@ -100,11 +102,34 @@ namespace MyLeasing.Prism.ViewModels
             }
 
             var token = response.Result;
+            var response2 = await _apiService.GetOwnerByEmailAsync(
+                url,
+                "api",
+                "/Owners/GetOwnerByEmail",
+                "bearer",
+                token.Token,
+                Email);
 
+            if (!response2.IsSuccess)
+            {
+                IsEnabled = true;
+                IsRunning = false;
+                await App.Current.MainPage.DisplayAlert("Error", "Problema with user data,call 900GG", "Accept");
+                Password = string.Empty;
+                return;
+            }
+
+            var owner = response2.Result;
+            var parameters = new NavigationParameters
+            {
+                { "owner",owner }
+            };
+
+            await _navigationService.NavigateAsync("PropertiesPage", parameters);
             IsEnabled = true;
             IsRunning = false;
 
-            await App.Current.MainPage.DisplayAlert("Ok", "We are making progress!", "Accept");
+            
 
         }
 
