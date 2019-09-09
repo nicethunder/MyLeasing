@@ -23,11 +23,15 @@ namespace MyLeasing.Web.Data
         {
             await _context.Database.EnsureCreatedAsync();
             await CheckRoles();
+            var allMaster = await CheckUserAsync("777", "Jose", "Sanchez", "jsanchez@gmail.com", "021 333 665", "Calle Rayo Calle Relampago", "Manager");
+            var ownerMaster = await CheckUserAsync("5050", "Jose", "Sanchez", "jsanchez@gmail.com", "66585475", "Calle Especial Calle Edition", "Owner");
             var manager = await CheckUserAsync("1010", "Juan", "Zuluaga", "jzuluaga55@gmail.com", "350 634 2747", "Calle Luna Calle Sol", "Manager");
             var owner = await CheckUserAsync("2020", "Juan", "Zuluaga", "jzuluaga55@hotmail.com", "350 634 2747", "Calle Luna Calle Sol", "Owner");
             var lessee = await CheckUserAsync("2020", "Juan", "Zuluaga", "carlos.zuluaga@globant.com", "350 634 2747", "Calle Luna Calle Sol", "Lessee");
             await CheckPropertyTypesAsync();
+            await CheckManagerAsync(allMaster);
             await CheckManagerAsync(manager);
+            await CheckOwnersAsync(ownerMaster);
             await CheckOwnersAsync(owner);
             await CheckLesseesAsync(lessee);
             await CheckPropertiesAsync();

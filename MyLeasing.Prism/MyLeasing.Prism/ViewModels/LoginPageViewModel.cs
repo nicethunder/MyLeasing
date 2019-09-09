@@ -24,6 +24,10 @@ namespace MyLeasing.Prism.ViewModels
             Title = "Login";
             IsEnabled = true;
             _apiService = apiService;
+
+            //TODO: delete this lines
+            Email = "jsanchez@gmail.com";
+            Password = "123456";
         }
 
         public DelegateCommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand(Login));
@@ -82,6 +86,8 @@ namespace MyLeasing.Prism.ViewModels
                 Password = string.Empty;
                 return;
             }
+
+            var token = response.Result;
 
             IsEnabled = true;
             IsRunning = false;
