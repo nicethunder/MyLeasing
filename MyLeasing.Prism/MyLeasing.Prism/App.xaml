@@ -10,7 +10,7 @@
         <ResourceDictionary>
 
             <!-- Parameters -->
-            <x:String x:Key="UrlAPI">http://192.168.0.6/MyLeasing.Web/</x:String>
+            <x:String x:Key="UrlAPI">http://192.168.0.7/MyLeasing.Web/</x:String>
             <x:String x:Key="UrlConnection">https://www.google.com/</x:String>
 
         </ResourceDictionary>
