@@ -3,9 +3,6 @@ using MyLeasing.Common.Models;
 using Newtonsoft.Json;
 using Prism.Commands;
 using Prism.Navigation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MyLeasing.Prism.ViewModels
 {
@@ -23,12 +20,8 @@ namespace MyLeasing.Prism.ViewModels
 
         private async void SelectPropertyAsync()
         {
-
-            var parameters = new NavigationParameters
-            {
-                { "property", this }
-            };
-            await _navigationService.NavigateAsync("ContractsPage",parameters);
+            Settings.Property = JsonConvert.SerializeObject(this);
+            await _navigationService.NavigateAsync("PropertyTabbedPage");
         }
     }
 }
