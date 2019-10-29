@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace MyLeasing.Web.Data.Entities
 {
@@ -49,5 +50,9 @@ namespace MyLeasing.Web.Data.Entities
         public ICollection<PropertyImage> PropertyImages { get; set; }
 
         public ICollection<Contract> Contracts { get; set; }
+
+        public string FirstImage => PropertyImages == null || PropertyImages.Count == 0
+        ? "https://pngimage.net/wp-content/uploads/2018/06/image-not-found-png-6-300x200.png"
+        : PropertyImages.FirstOrDefault().ImageUrl;
     }
 }
